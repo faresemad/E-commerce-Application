@@ -1,0 +1,58 @@
+version: "3"
+
+volumes:
+  ecommerce_local_postgres_data: {}
+  ecommerce_local_postgres_data_backups: {}
+  ecommerce_django_media: {}
+
+services:
+  django:
+    build:
+      context: .
+      dockerfile: ./compose/django/Dockerfile
+    image: ecommerce_local_django
+    container_name: ecommerce_local_django
+    depends_on:
+      - postgres
+    volumes:
+      - .:/app:z
+    env_file:
+      - ./.envs/.django
+      - ./.envs/.postgres
+    expose:
+      - 8000
+    ports:
+      - "8000:8000"
+    command: /start
+
+  postgres:
+    build:
+      context: .
+      dockerfile: ./compose/postgres/Dockerfile
+    image: ecommerce_production_postgres
+    container_name: ecommerce_local_postgres
+    volumes:
+      - ecommerce_local_postgres_data:/var/lib/postgresql/data
+      - ecommerce_local_postgres_data_backups:/backups
+    env_file:
+      - ./.envs/.postgres
+
+  # nginx:
+  #   build:
+  #     context: .
+  #     dockerfile: ./compose/nginx/Dockerfile
+  #   image: ecommerce_django_nginx
+  #   container_name: ecommerce_django_nginx
+  #   restart: always
+  #   depends_on:
+  #     - django
+  #   ports:
+  #     - "80:80"
+  #   volumes:
+  #     - ecommerce_django_media:/usr/src/app
+
+  # redis:
+  #   image: redis:latest
+  #   container_name: ecommerce_local_redis
+  #   ports:
+  #     - "6379:6379"
