@@ -31,6 +31,13 @@ class Product(models.Model):
     def __str__(self):
         return self.name
 
+    def get_rating(self):
+        reviews = self.reviews.all()
+        if reviews:
+            total = sum([review.rating for review in reviews])
+            return total / len(reviews)
+        return 0
+
     class Meta:
         verbose_name_plural = "Products"
         indexes = [
