@@ -31,6 +31,7 @@ class ProductCreateUpdateSerializer(serializers.ModelSerializer):
 
 class ProductListSerializer(serializers.ModelSerializer):
     product_images = ProductImageSerializer(many=True, read_only=True)
+    category = serializers.StringRelatedField()
 
     class Meta:
         model = Product
@@ -40,6 +41,7 @@ class ProductListSerializer(serializers.ModelSerializer):
 class ProductRetrieveSerializer(serializers.ModelSerializer):
     product_images = ProductImageSerializer(many=True, read_only=True)
     reviews = ProductReviewSerializer(many=True, read_only=True)
+    category = serializers.StringRelatedField()
 
     class Meta:
         model = Product
