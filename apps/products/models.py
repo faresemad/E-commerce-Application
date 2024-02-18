@@ -17,6 +17,10 @@ class Category(models.Model):
     def __str__(self):
         return self.name
 
+    def save(self, *args, **kwargs):
+        self.slug = slugify.slugify(self.name)
+        super().save(*args, **kwargs)
+
     class Meta:
         verbose_name_plural = "Categories"
 
