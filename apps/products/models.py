@@ -1,5 +1,6 @@
 import uuid
 
+import slugify
 from django.contrib.auth import get_user_model
 from django.core.validators import MaxValueValidator, MinValueValidator
 from django.db import models
@@ -30,6 +31,17 @@ class Product(models.Model):
 
     def __str__(self):
         return self.name
+
+    def get_rating(self):
+        reviews = self.reviews.all()
+        if reviews:
+            total = sum([review.rating for review in reviews])
+            return total / len(reviews)
+        return 0
+
+    def save(self, *args, **kwargs):
+        self.slug = slugify.slugify(self.name)
+        super().save(*args, **kwargs)
 
     class Meta:
         verbose_name_plural = "Products"
