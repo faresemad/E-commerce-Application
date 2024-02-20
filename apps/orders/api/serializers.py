@@ -1,12 +1,22 @@
 from rest_framework import serializers
 
-# from apps.carts.api.serializers import CartItemSerializer, CartSerializer
-# from apps.carts.models import Cart, CartItem
 from apps.orders.models import Order, OrderItem
+from apps.products.api.serializers.helper import UserSerializer
+from apps.products.api.serializers.product import ProductListSerializer
 
 
-class OrderItemSerializer(serializers.ModelSerializer):
+class OrderCreateSerializer(serializers.ModelSerializer):
+    user = serializers.HiddenField(default=serializers.CurrentUserDefault())
+
+    class Meta:
+        model = Order
+        fields = ("id", "user")
+
+
+class OrderItemListRetrieveSerializer(serializers.ModelSerializer):
     cost = serializers.SerializerMethodField()
+    order = serializers.StringRelatedField()
+    product = ProductListSerializer()
 
     class Meta:
         model = OrderItem
@@ -16,9 +26,10 @@ class OrderItemSerializer(serializers.ModelSerializer):
         return obj.get_cost()
 
 
-class OrderSerializer(serializers.ModelSerializer):
-    items = OrderItemSerializer(many=True, read_only=True)
+class OrderListRetrieveSerializer(serializers.ModelSerializer):
+    items = OrderItemListRetrieveSerializer(many=True, read_only=True)
     total_cost = serializers.SerializerMethodField()
+    user = UserSerializer(read_only=True)
 
     class Meta:
         model = Order
