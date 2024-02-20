@@ -30,4 +30,5 @@ urlpatterns += [
     path(f"{settings.API_PREFIX}users/", include("apps.users.api.urls")),
     path(f"{settings.API_PREFIX}products/", include("apps.products.api.urls")),
     path(f"{settings.API_PREFIX}orders/", include("apps.orders.api.urls")),
+    path(f"{settings.API_PREFIX}carts/", include("apps.carts.api.urls")),
 ]
