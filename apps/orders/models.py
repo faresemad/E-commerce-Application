@@ -3,6 +3,7 @@ import uuid
 from django.contrib.auth import get_user_model
 from django.db import models
 
+from apps.carts.models import Cart
 from apps.products.models import Product
 
 User = get_user_model()
@@ -15,6 +16,7 @@ class Order(models.Model):
     postal_code = models.CharField(max_length=20)
     city = models.CharField(max_length=100)
     paid = models.BooleanField(default=False)
+    cart = models.ForeignKey(Cart, on_delete=models.CASCADE, related_name="orders")
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
