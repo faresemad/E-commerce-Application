@@ -5,7 +5,7 @@ from apps.products.api.serializers.helper import UserSerializer
 from apps.products.api.serializers.product import ProductListSerializer
 
 
-class CartItemCreateUpdateSerializer(serializers.ModelSerializer):
+class CartItemCreateSerializer(serializers.ModelSerializer):
     class Meta:
         model = CartItem
         fields = "__all__"

@@ -4,7 +4,7 @@ from rest_framework.response import Response
 
 from apps.carts.api.serializers import (
     CartCreateUpdateSerializer,
-    CartItemCreateUpdateSerializer,
+    CartItemCreateSerializer,
     CartItemListRetrieveSerializer,
     CartListRetrieveSerializer,
 )
@@ -40,7 +40,7 @@ class CartViewSet(
 class CartItemViewSet(
     viewsets.ModelViewSet,
 ):
-    serializer_class = CartItemCreateUpdateSerializer
+    serializer_class = CartItemCreateSerializer
     permission_classes = [IsAuthenticated]
 
     def get_queryset(self):
@@ -49,7 +49,7 @@ class CartItemViewSet(
     def get_serializer_class(self):
         if self.action in ["list", "retrieve"]:
             return CartItemListRetrieveSerializer
-        return CartItemCreateUpdateSerializer
+        return CartItemCreateSerializer
 
     def create(self, request, *args, **kwargs):
         cart = Cart.objects.filter(user=request.user).first()
