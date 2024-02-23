@@ -11,6 +11,12 @@ class CartItemCreateSerializer(serializers.ModelSerializer):
         fields = "__all__"
 
 
+class CartItemUpdateSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = CartItem
+        fields = ("quantity",)
+
+
 class CartItemListRetrieveSerializer(serializers.ModelSerializer):
     cart = serializers.StringRelatedField()
     product = ProductListSerializer()

@@ -6,6 +6,7 @@ from apps.carts.api.serializers import (
     CartCreateUpdateSerializer,
     CartItemCreateSerializer,
     CartItemListRetrieveSerializer,
+    CartItemUpdateSerializer,
     CartListRetrieveSerializer,
 )
 from apps.carts.models import Cart, CartItem
@@ -49,6 +50,8 @@ class CartItemViewSet(
     def get_serializer_class(self):
         if self.action in ["list", "retrieve"]:
             return CartItemListRetrieveSerializer
+        if self.action == "update":
+            return CartItemUpdateSerializer
         return CartItemCreateSerializer
 
     def create(self, request, *args, **kwargs):
