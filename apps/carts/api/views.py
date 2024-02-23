@@ -33,15 +33,12 @@ class CartViewSet(
         existing_cart = Cart.objects.filter(user=request.user).first()
         if existing_cart:
             return Response({"error": "Cart already exists"}, status=status.HTTP_400_BAD_REQUEST)
-        return super().create(request, *args, **kwargs)
+        super().create(request, *args, **kwargs)
+        return Response({"message": "Cart created successfully"}, status=status.HTTP_201_CREATED)
 
 
 class CartItemViewSet(
-    mixins.CreateModelMixin,
-    mixins.ListModelMixin,
-    mixins.RetrieveModelMixin,
-    mixins.UpdateModelMixin,
-    viewsets.GenericViewSet,
+    viewsets.ModelViewSet,
 ):
     serializer_class = CartItemCreateUpdateSerializer
     permission_classes = [IsAuthenticated]
@@ -53,3 +50,10 @@ class CartItemViewSet(
         if self.action in ["list", "retrieve"]:
             return CartItemListRetrieveSerializer
         return CartItemCreateUpdateSerializer
+
+    def create(self, request, *args, **kwargs):
+        cart = Cart.objects.filter(user=request.user).first()
+        if not cart:
+            return Response({"error": "Cart does not exist"}, status=status.HTTP_400_BAD_REQUEST)
+        super().create(request, *args, **kwargs)
+        return Response({"message": "Cart item created successfully"}, status=status.HTTP_201_CREATED)
