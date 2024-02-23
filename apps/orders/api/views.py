@@ -1,15 +1,17 @@
 from django.db import transaction
 from rest_framework import mixins, status, viewsets
+from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 
 from apps.carts.models import Cart, CartItem
-from apps.orders.api.serializers import OrderSerializer
+from apps.orders.api.serializers import OrderCreateSerializer, OrderListRetrieveSerializer
 from apps.orders.models import Order, OrderItem
 
 
 class OrderViewSet(mixins.CreateModelMixin, mixins.RetrieveModelMixin, mixins.ListModelMixin, viewsets.GenericViewSet):
-    serializer_class = OrderSerializer
+    serializer_class = OrderCreateSerializer
     queryset = Order.objects.all()
+    permission_classes = [IsAuthenticated]
 
     def create(self, request, *args, **kwargs):
         cart = Cart.objects.get(user=request.user)
@@ -23,4 +25,9 @@ class OrderViewSet(mixins.CreateModelMixin, mixins.RetrieveModelMixin, mixins.Li
             order.save()
             cart_items.delete()
 
-        return Response(OrderSerializer(order).data, status=status.HTTP_201_CREATED)
+        return Response({"id": order.id}, status=status.HTTP_201_CREATED)
+
+    def get_serializer_class(self):
+        if self.action in ["list", "retrieve"]:
+            return OrderListRetrieveSerializer
+        return self.serializer_class
