@@ -24,6 +24,8 @@ class OrderViewSet(mixins.CreateModelMixin, mixins.RetrieveModelMixin, mixins.Li
                 )
             order.save()
             cart_items.delete()
+            # Store the UUID in the session
+            request.session["order_id"] = str(order.id)
 
         return Response({"id": order.id}, status=status.HTTP_201_CREATED)
 
