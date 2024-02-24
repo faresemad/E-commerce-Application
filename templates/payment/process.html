@@ -1,0 +1,10 @@
+{% block title %}
+  Pay your order
+{% endblock title %}
+{% block content %}
+  <h1>Order summary</h1>
+  <form action="{% url "payment:process" %}" method="post">
+    <input type="submit" value="Pay now" />
+    {% csrf_token %}
+  </form>
+{% endblock content %}
