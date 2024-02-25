@@ -10,7 +10,7 @@ class OrderCreateSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Order
-        fields = ("id", "user")
+        exclude = ("cart", "paid", "status")
 
 
 class OrderItemListRetrieveSerializer(serializers.ModelSerializer):
