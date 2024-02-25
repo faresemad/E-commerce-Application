@@ -18,6 +18,7 @@ services:
       - .:/app:z
     env_file:
       - ./.envs/.django
+      - ./.envs/.stripe
       - ./.envs/.postgres
     expose:
       - 8000
@@ -37,22 +38,13 @@ services:
     env_file:
       - ./.envs/.postgres
 
-  # nginx:
-  #   build:
-  #     context: .
-  #     dockerfile: ./compose/nginx/Dockerfile
-  #   image: ecommerce_django_nginx
-  #   container_name: ecommerce_django_nginx
-  #   restart: always
-  #   depends_on:
-  #     - django
-  #   ports:
-  #     - "80:80"
-  #   volumes:
-  #     - ecommerce_django_media:/usr/src/app
-
-  # redis:
-  #   image: redis:latest
-  #   container_name: ecommerce_local_redis
-  #   ports:
-  #     - "6379:6379"
+  stripe:
+    image: stripe/stripe-cli:v1.19.2
+    container_name: ecommerce_local_stripe
+    volumes:
+      - .:/app:z
+    command: listen --forward-to http://django:8000/api/v1/payments/webhooks/
+    env_file:
+      - ./.envs/.stripe
+    depends_on:
+      - django
