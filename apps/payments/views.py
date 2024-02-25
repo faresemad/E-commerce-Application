@@ -2,6 +2,7 @@ from decimal import Decimal
 
 import stripe
 from django.conf import settings
+from django.http import HttpResponse
 from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse
 
@@ -40,6 +41,11 @@ def payment_process(request):
                     "quantity": item.quantity,
                 }
             )
+        # Check if any line items were added
+        if not session_data["line_items"]:
+            # Handle error condition where there are no line items
+            # (This should not occur if there are items in the order)
+            return HttpResponse("No items to process")
         # create Stripe checkout session
         session = stripe.checkout.Session.create(**session_data)
         # redirect to Stripe payment form
