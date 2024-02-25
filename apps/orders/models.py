@@ -24,6 +24,7 @@ class Order(models.Model):
     paid = models.BooleanField(default=False)
     cart = models.ForeignKey(Cart, on_delete=models.CASCADE, related_name="orders")
     status = models.CharField(max_length=10, choices=OrderStatus.choices, default=OrderStatus.CREATED)
+    stripe_id = models.CharField(max_length=250, blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
