@@ -16,7 +16,13 @@ class OrderViewSet(mixins.CreateModelMixin, mixins.RetrieveModelMixin, mixins.Li
     def create(self, request, *args, **kwargs):
         cart = Cart.objects.get(user=request.user)
         with transaction.atomic():
-            order = Order.objects.create(user=request.user, cart=cart)
+            order = Order.objects.create(
+                user=request.user,
+                cart=cart,
+                address=request.data["address"],
+                postal_code=request.data["postal_code"],
+                city=request.data["city"],
+            )
             cart_items = CartItem.objects.filter(cart=cart)
             for cart_item in cart_items:
                 OrderItem.objects.create(
