@@ -10,6 +10,12 @@ User = get_user_model()
 
 
 class Order(models.Model):
+    class OrderStatus(models.TextChoices):
+        CREATED = "CREATED", "Created"
+        PAID = "PAID", "Paid"
+        SHIPPED = "SHIPPED", "Shipped"
+        CANCELED = "CANCELED", "Canceled"
+
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     user = models.ForeignKey(User, on_delete=models.CASCADE, related_name="orders")
     address = models.CharField(max_length=250)
@@ -17,6 +23,7 @@ class Order(models.Model):
     city = models.CharField(max_length=100)
     paid = models.BooleanField(default=False)
     cart = models.ForeignKey(Cart, on_delete=models.CASCADE, related_name="orders")
+    status = models.CharField(max_length=10, choices=OrderStatus.choices, default=OrderStatus.CREATED)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
