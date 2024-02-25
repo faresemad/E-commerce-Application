@@ -9,7 +9,7 @@ from apps.orders.models import Order
 @csrf_exempt
 def stripe_webhook(request):
     payload = request.body
-    sig_header = request.headers["stripe-signature"]
+    sig_header = request.headers.get("Stripe-Signature")
     event = None
     try:
         event = stripe.Webhook.construct_event(payload, sig_header, settings.STRIPE_WEBHOOK_SECRET)
@@ -28,5 +28,8 @@ def stripe_webhook(request):
                 return HttpResponse(status=404)
         # mark order as paid
         order.paid = True
+        order.status = Order.OrderStatus.PAID
+        # store Stripe payment ID
+        order.stripe_id = session.payment_intent
         order.save()
     return HttpResponse(status=200)
