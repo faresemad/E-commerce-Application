@@ -13,8 +13,6 @@ class Order(models.Model):
     class OrderStatus(models.TextChoices):
         CREATED = "CREATED", "Created"
         PAID = "PAID", "Paid"
-        SHIPPED = "SHIPPED", "Shipped"
-        CANCELED = "CANCELED", "Canceled"
 
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     user = models.ForeignKey(User, on_delete=models.CASCADE, related_name="orders")

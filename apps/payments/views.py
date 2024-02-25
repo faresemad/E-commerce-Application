@@ -2,21 +2,33 @@ from decimal import Decimal
 
 import stripe
 from django.conf import settings
-from django.http import HttpResponse
-from django.shortcuts import get_object_or_404, redirect, render
+from django.shortcuts import get_object_or_404, render
 from django.urls import reverse
+from rest_framework import status, viewsets
+from rest_framework.decorators import action
+from rest_framework.response import Response
 
 from apps.orders.models import Order
+from apps.payments.serializers import PaymentSerializer
 
 # create the Stripe instance
 stripe.api_key = settings.STRIPE_SECRET_KEY
 stripe.api_version = settings.STRIPE_API_VERSION
 
 
-def payment_process(request):
-    order_id = request.session.get("order_id", None)
-    order = get_object_or_404(Order, id=order_id)
-    if request.method == "POST":
+class PaymentViewSet(viewsets.ViewSet):
+    def get_serializer_class(self):
+        if self.action == "process_payment":
+            return PaymentSerializer
+        return super().get_serializer_class()
+
+    @action(detail=False, methods=["post"])
+    def process_payment(self, request):
+        serializer = PaymentSerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        order_id = serializer.validated_data["order_id"]
+        order = get_object_or_404(Order, id=order_id)
+
         success_url = request.build_absolute_uri(reverse("payment:completed"))
         cancel_url = request.build_absolute_uri(reverse("payment:canceled"))
         # Stripe checkout session data
@@ -43,15 +55,10 @@ def payment_process(request):
             )
         # Check if any line items were added
         if not session_data["line_items"]:
-            # Handle error condition where there are no line items
-            # (This should not occur if there are items in the order)
-            return HttpResponse("No items to process")
+            return Response("No items to process", status=status.HTTP_400_BAD_REQUEST)
         # create Stripe checkout session
         session = stripe.checkout.Session.create(**session_data)
-        # redirect to Stripe payment form
-        return redirect(session.url, code=303)
-    else:
-        return render(request, "payment/process.html", locals())
+        return Response({"url": session.url})
 
 
 def payment_completed(request):
