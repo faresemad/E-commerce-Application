@@ -28,10 +28,8 @@ Ensure your system meets the following requirements before installing the applic
 
 - Python 3.x
 - Django
-- Celery
-- Redis
-- Nginx
-- Flower
+- Stripe
+- PostgreSQL
 
 ## Installation
 
@@ -67,13 +65,11 @@ The application can be configured by modifying the following files:
 
 1. Configure Django settings in `/config/settings/base.py`.
 
-2. Configure (Celery / Celery Beat / Flower) settings in `/config/celery.py` or `/compose/django/celery/(beat/flower/worker)`.
+2. Configure Django Environment settings in `/.envs/.django`.
 
-3. Configure Nginx settings in `/compose/nginx/nginx.conf`.
+3. Configure Postgres Environment settings in `/.envs/.postgres`.
 
-4. Configure Django Environment settings in `/.envs/.django`.
-
-5. Configure Postgres Environment settings in `/.envs/.postgres`.
+3. Configure Stripe Environment settings in `/.envs/.stripe`.
 
 ## Folder Structure
 
