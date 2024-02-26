@@ -15,6 +15,11 @@ class OrderViewSet(mixins.CreateModelMixin, mixins.RetrieveModelMixin, mixins.Li
 
     def create(self, request, *args, **kwargs):
         cart = Cart.objects.get(user=request.user)
+
+        # Check if cart is empty
+        if cart.items.count() == 0:
+            return Response({"detail": "Cart is empty. Cannot create order."}, status=status.HTTP_400_BAD_REQUEST)
+
         with transaction.atomic():
             order = Order.objects.create(
                 user=request.user,
@@ -32,7 +37,7 @@ class OrderViewSet(mixins.CreateModelMixin, mixins.RetrieveModelMixin, mixins.Li
             cart_items.delete()
             # Store the UUID in the session
             request.session["order_id"] = str(order.id)
-        return Response({"id": order.id}, status=status.HTTP_201_CREATED)
+        return Response({"message": "Order Created Successfuly"}, status=status.HTTP_201_CREATED)
 
     def get_serializer_class(self):
         if self.action in ["list", "retrieve"]:
