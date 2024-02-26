@@ -10,7 +10,7 @@ from apps.orders.models import Order, OrderItem
 
 class OrderViewSet(mixins.CreateModelMixin, mixins.RetrieveModelMixin, mixins.ListModelMixin, viewsets.GenericViewSet):
     serializer_class = OrderCreateSerializer
-    queryset = Order.objects.all()
+    queryset = Order.objects.filter(status=Order.OrderStatus.CREATED)
     permission_classes = [IsAuthenticated]
 
     def create(self, request, *args, **kwargs):
