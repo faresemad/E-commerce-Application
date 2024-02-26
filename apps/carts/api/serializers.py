@@ -8,7 +8,14 @@ from apps.products.api.serializers.product import ProductListSerializer
 class CartItemCreateSerializer(serializers.ModelSerializer):
     class Meta:
         model = CartItem
-        fields = "__all__"
+        exclude = ("cart",)
+
+    def create(self, validated_data):
+        cart = Cart.objects.filter(user=self.context["request"].user).first()
+        if not cart:
+            cart = Cart.objects.create(user=self.context["request"].user)
+        validated_data["cart"] = cart
+        return super().create(validated_data)
 
 
 class CartItemUpdateSerializer(serializers.ModelSerializer):

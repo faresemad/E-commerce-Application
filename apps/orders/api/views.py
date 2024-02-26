@@ -10,11 +10,16 @@ from apps.orders.models import Order, OrderItem
 
 class OrderViewSet(mixins.CreateModelMixin, mixins.RetrieveModelMixin, mixins.ListModelMixin, viewsets.GenericViewSet):
     serializer_class = OrderCreateSerializer
-    queryset = Order.objects.all()
+    queryset = Order.objects.filter(status=Order.OrderStatus.CREATED)
     permission_classes = [IsAuthenticated]
 
     def create(self, request, *args, **kwargs):
         cart = Cart.objects.get(user=request.user)
+
+        # Check if cart is empty
+        if cart.items.count() == 0:
+            return Response({"detail": "Cart is empty. Cannot create order."}, status=status.HTTP_400_BAD_REQUEST)
+
         with transaction.atomic():
             order = Order.objects.create(
                 user=request.user,
@@ -32,9 +37,20 @@ class OrderViewSet(mixins.CreateModelMixin, mixins.RetrieveModelMixin, mixins.Li
             cart_items.delete()
             # Store the UUID in the session
             request.session["order_id"] = str(order.id)
-        return Response({"id": order.id}, status=status.HTTP_201_CREATED)
+        return Response({"message": "Order Created Successfuly"}, status=status.HTTP_201_CREATED)
 
     def get_serializer_class(self):
         if self.action in ["list", "retrieve"]:
             return OrderListRetrieveSerializer
         return self.serializer_class
+
+
+class OrdersHistoryViewSet(mixins.ListModelMixin, mixins.RetrieveModelMixin, viewsets.GenericViewSet):
+    serializer_class = OrderListRetrieveSerializer
+    permission_classes = [IsAuthenticated]
+
+    def get_queryset(self):
+        return Order.objects.filter(user=self.request.user, status=Order.OrderStatus.PAID)
+
+    def list(self, request, *args, **kwargs):
+        return super().list(request, *args, **kwargs)

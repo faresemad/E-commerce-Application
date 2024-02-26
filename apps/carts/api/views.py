@@ -55,8 +55,5 @@ class CartItemViewSet(
         return CartItemCreateSerializer
 
     def create(self, request, *args, **kwargs):
-        cart = Cart.objects.filter(user=request.user).first()
-        if not cart:
-            return Response({"error": "Cart does not exist"}, status=status.HTTP_400_BAD_REQUEST)
         super().create(request, *args, **kwargs)
         return Response({"message": "Cart item created successfully"}, status=status.HTTP_201_CREATED)
