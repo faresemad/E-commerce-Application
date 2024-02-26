@@ -43,3 +43,14 @@ class OrderViewSet(mixins.CreateModelMixin, mixins.RetrieveModelMixin, mixins.Li
         if self.action in ["list", "retrieve"]:
             return OrderListRetrieveSerializer
         return self.serializer_class
+
+
+class OrdersHistoryViewSet(mixins.ListModelMixin, mixins.RetrieveModelMixin, viewsets.GenericViewSet):
+    serializer_class = OrderListRetrieveSerializer
+    permission_classes = [IsAuthenticated]
+
+    def get_queryset(self):
+        return Order.objects.filter(user=self.request.user, status=Order.OrderStatus.PAID)
+
+    def list(self, request, *args, **kwargs):
+        return super().list(request, *args, **kwargs)
