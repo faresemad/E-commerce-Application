@@ -7,6 +7,7 @@ env = environ.Env()
 
 
 DJANGO_APPS = [
+    "daphne",
     "django.contrib.admin",
     "django.contrib.auth",
     "django.contrib.contenttypes",
@@ -24,7 +25,6 @@ THIRD_PARTY_APPS = [
     "djoser",
     "drf_spectacular",
     "django_filters",
-    "channels",
 ]
 
 LOCAL_APPS = [
@@ -33,7 +33,7 @@ LOCAL_APPS = [
     "apps.orders",
     "apps.carts",
     "apps.payments",
-    "app.notifications",
+    "apps.notifications",
 ]
 
 INSTALLED_APPS = DJANGO_APPS + THIRD_PARTY_APPS + LOCAL_APPS
@@ -73,6 +73,7 @@ TEMPLATES = [
 ]
 
 WSGI_APPLICATION = "config.wsgi.application"
+ASGI_APPLICATION = "config.asgi.application"
 
 
 # Database
