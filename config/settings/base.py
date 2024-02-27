@@ -24,6 +24,7 @@ THIRD_PARTY_APPS = [
     "djoser",
     "drf_spectacular",
     "django_filters",
+    "channels",
 ]
 
 LOCAL_APPS = [
