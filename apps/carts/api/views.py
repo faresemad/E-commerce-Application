@@ -1,3 +1,5 @@
+from asgiref.sync import async_to_sync
+from channels.layers import get_channel_layer
 from rest_framework import mixins, status, viewsets
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
@@ -55,5 +57,15 @@ class CartItemViewSet(
         return CartItemCreateSerializer
 
     def create(self, request, *args, **kwargs):
+        channel_layer = get_channel_layer()
         super().create(request, *args, **kwargs)
+        # Send Notifications
+        async_to_sync(channel_layer.group_send)(
+            f"notification_{request.user.username}",  # Group name
+            {
+                "type": "notification_message",
+                "message": "Cart item has been created",
+                "user": request.user.username,
+            },
+        )
         return Response({"message": "Cart item created successfully"}, status=status.HTTP_201_CREATED)
