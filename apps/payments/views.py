@@ -1,6 +1,8 @@
 from decimal import Decimal
 
 import stripe
+from asgiref.sync import async_to_sync
+from channels.layers import get_channel_layer
 from django.conf import settings
 from django.shortcuts import get_object_or_404, render
 from django.urls import reverse
@@ -14,6 +16,8 @@ from apps.payments.serializers import PaymentSerializer
 # create the Stripe instance
 stripe.api_key = settings.STRIPE_SECRET_KEY
 stripe.api_version = settings.STRIPE_API_VERSION
+
+channel_layer = get_channel_layer()
 
 
 class PaymentViewSet(viewsets.ViewSet):
@@ -62,8 +66,25 @@ class PaymentViewSet(viewsets.ViewSet):
 
 
 def payment_completed(request):
+    # Send Notifications
+    async_to_sync(channel_layer.group_send)(
+        f"notification_{request.user.username}",
+        {
+            "type": "notification_message",
+            "message": "Payment completed",
+            "user": request.user.username,
+        },
+    )
     return render(request, "payment/completed.html")
 
 
 def payment_canceled(request):
+    async_to_sync(channel_layer.group_send)(
+        f"notification_{request.user.username}",
+        {
+            "type": "notification_message",
+            "message": "Payment canceled",
+            "user": request.user.username,
+        },
+    )
     return render(request, "payment/canceled.html")
