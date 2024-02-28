@@ -1,3 +1,5 @@
+from asgiref.sync import async_to_sync
+from channels.layers import get_channel_layer
 from django.db import transaction
 from rest_framework import mixins, status, viewsets
 from rest_framework.permissions import IsAuthenticated
@@ -15,7 +17,7 @@ class OrderViewSet(mixins.CreateModelMixin, mixins.RetrieveModelMixin, mixins.Li
 
     def create(self, request, *args, **kwargs):
         cart = Cart.objects.get(user=request.user)
-
+        channel_layer = get_channel_layer()
         # Check if cart is empty
         if cart.items.count() == 0:
             return Response({"detail": "Cart is empty. Cannot create order."}, status=status.HTTP_400_BAD_REQUEST)
@@ -37,6 +39,15 @@ class OrderViewSet(mixins.CreateModelMixin, mixins.RetrieveModelMixin, mixins.Li
             cart_items.delete()
             # Store the UUID in the session
             request.session["order_id"] = str(order.id)
+            # Send Notifications
+            async_to_sync(channel_layer.group_send)(
+                f"notification_{request.user.username}",  # Group name
+                {
+                    "type": "notification_message",
+                    "message": f"Order {order.id} has been created",
+                    "user": request.user.username,
+                },
+            )
         return Response({"message": "Order Created Successfuly"}, status=status.HTTP_201_CREATED)
 
     def get_serializer_class(self):

@@ -1,9 +1,13 @@
 import stripe
+from asgiref.sync import async_to_sync
+from channels.layers import get_channel_layer
 from django.conf import settings
 from django.http import HttpResponse
 from django.views.decorators.csrf import csrf_exempt
 
 from apps.orders.models import Order
+
+channel_layer = get_channel_layer()
 
 
 @csrf_exempt
@@ -32,4 +36,13 @@ def stripe_webhook(request):
         # store Stripe payment ID
         order.stripe_id = session.payment_intent
         order.save()
+        # Send Notification to the user
+        async_to_sync(channel_layer.group_send)(
+            f"notification_{order.user.username}",
+            {
+                "type": "notification_message",
+                "message": f"Order {order.id} has been paid",
+                "user": order.user.username,
+            },
+        )
     return HttpResponse(status=200)
